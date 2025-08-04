@@ -79,11 +79,12 @@ processes.forEach(p => {
 });
 
 console.log('\n📋 Platform Command Formats:');
+const tmuxSession = process.env.TMUX_SESSION_NAME || 'claude-session';
 if (process.env.TELEGRAM_ENABLED === 'true') {
-    console.log('   Telegram: /cmd TOKEN123 <command>');
+    console.log(`   Telegram: /cmd ${tmuxSession} <command>`);
 }
 if (process.env.LINE_ENABLED === 'true') {
-    console.log('   LINE: Token TOKEN123 <command>');
+    console.log(`   LINE: ${tmuxSession} <command>`);
 }
 if (process.env.EMAIL_ENABLED === 'true') {
     console.log('   Email: Reply to notification emails');

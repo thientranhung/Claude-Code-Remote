@@ -356,9 +356,9 @@ class TmuxInjector {
     }
     
     // Complete command injection workflow
-    async injectCommandFull(token, command) {
+    async injectCommandFull(sessionName, command) {
         try {
-            this.log.debug(`Starting tmux command injection (Token: ${token})`);
+            this.log.debug(`Starting tmux command injection (Session: ${sessionName})`);
             
             // 1. Check if tmux is available
             const tmuxAvailable = await this.checkTmuxAvailable();

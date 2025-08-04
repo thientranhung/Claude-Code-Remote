@@ -91,14 +91,26 @@ function isAllowed(fromAddress) {
     return ALLOWED_SENDERS.some(allowed => addr.includes(allowed));
 }
 
-// Extract Claude-Code-Remote token from subject
+// Extract tmux session name from subject (for backward compatibility)
 function extractTokenFromSubject(subject = '') {
+    // For backward compatibility, still support token format
     const patterns = [
         /\[Claude-Code-Remote\s+#([A-Z0-9]+)\]/,
         /Re:\s*\[Claude-Code-Remote\s+#([A-Z0-9]+)\]/
     ];
     
     for (const pattern of patterns) {
+        const match = subject.match(pattern);
+        if (match) return match[1];
+    }
+    
+    // New format: extract tmux session name
+    const sessionPatterns = [
+        /\[Claude-Code-Remote\s+Session:\s+([a-zA-Z0-9_-]+)\]/,
+        /Re:\s*\[Claude-Code-Remote\s+Session:\s+([a-zA-Z0-9_-]+)\]/
+    ];
+    
+    for (const pattern of sessionPatterns) {
         const match = subject.match(pattern);
         if (match) return match[1];
     }
@@ -215,55 +227,40 @@ function deduplicateCommand(command) {
 }
 
 // Unattended remote command injection - tmux priority, smart fallback
-async function injectCommandRemote(token, command) {
-    const sessions = loadSessions();
-    const session = sessions[token];
-    
-    if (!session) {
-        log.warn({ token }, 'Session not found');
-        return false;
-    }
-    
-    // Check if session has expired
-    const now = Math.floor(Date.now() / 1000);
-    if (session.expiresAt && session.expiresAt < now) {
-        log.warn({ token }, 'Session expired');
-        return false;
-    }
-    
+async function injectCommandRemote(sessionName, command) {
     try {
-        log.info({ token, command }, 'Starting remote command injection');
+        log.info({ sessionName, command }, 'Starting remote command injection');
         
         // Method 1: Prefer tmux unattended injection
         const TmuxInjector = require('./tmux-injector');
-        const tmuxSessionName = session.tmuxSession || 'claude-taskping';
+        const tmuxSessionName = process.env.TMUX_SESSION_NAME || sessionName || 'claude-session';
         const tmuxInjector = new TmuxInjector(log, tmuxSessionName);
         
-        const tmuxResult = await tmuxInjector.injectCommandFull(token, command);
+        const tmuxResult = await tmuxInjector.injectCommandFull(sessionName, command);
         
         if (tmuxResult.success) {
-            log.info({ token, session: tmuxResult.session }, 'Tmux remote injection successful');
+            log.info({ sessionName, session: tmuxResult.session }, 'Tmux remote injection successful');
             return true;
         } else {
-            log.warn({ token, error: tmuxResult.error }, 'Tmux injection failed, trying smart fallback');
+            log.warn({ sessionName, error: tmuxResult.error }, 'Tmux injection failed, trying smart fallback');
             
             // Method 2: Fall back to smart injector
             const SmartInjector = require('./smart-injector');
             const smartInjector = new SmartInjector(log);
             
-            const smartResult = await smartInjector.injectCommand(token, command);
+            const smartResult = await smartInjector.injectCommand(sessionName, command);
             
             if (smartResult) {
-                log.info({ token }, 'Smart injection fallback successful');
+                log.info({ sessionName }, 'Smart injection fallback successful');
                 return true;
             } else {
-                log.error({ token }, 'All remote injection methods failed');
+                log.error({ sessionName }, 'All remote injection methods failed');
                 return false;
             }
         }
         
     } catch (error) {
-        log.error({ error, token }, 'Failed to inject command remotely');
+        log.error({ error, sessionName }, 'Failed to inject command remotely');
         return false;
     }
 }
@@ -430,18 +427,18 @@ async function handleMailMessage(parsed) {
             return;
         }
         
-        // Extract token
+        // Extract session name or token (for backward compatibility)
         const subject = parsed.subject || '';
-        const token = extractTokenFromSubject(subject);
+        const sessionName = extractTokenFromSubject(subject);
         
-        if (!token) {
-            log.warn({ subject }, 'No token found in email');
+        if (!sessionName) {
+            log.warn({ subject }, 'No session name or token found in email');
             return;
         }
         
         // Extract command - add detailed debugging
         log.debug({ 
-            token, 
+            sessionName, 
             rawEmailText: parsed.text?.substring(0, 500),
             emailSubject: parsed.subject 
         }, 'Raw email content before cleaning');
@@ -449,23 +446,23 @@ async function handleMailMessage(parsed) {
         const command = cleanEmailText(parsed.text);
         
         log.debug({ 
-            token, 
+            sessionName, 
             cleanedCommand: command,
             commandLength: command?.length 
         }, 'Email content after cleaning');
         
         if (!command) {
-            log.warn({ token }, 'No command found in email');
+            log.warn({ sessionName }, 'No command found in email');
             return;
         }
         
-        log.info({ token, command }, 'Processing email command');
+        log.info({ sessionName, command }, 'Processing email command');
         
         // Unattended remote command injection (tmux priority, smart fallback)
-        const success = await injectCommandRemote(token, command);
+        const success = await injectCommandRemote(sessionName, command);
         
         if (!success) {
-            log.warn({ token }, 'Could not inject command');
+            log.warn({ sessionName }, 'Could not inject command');
             return;
         }
         
@@ -492,7 +489,7 @@ async function handleMailMessage(parsed) {
         // Persist processed messages
         saveProcessedMessages();
         
-        log.info({ token }, 'Command injected successfully via remote method');
+        log.info({ sessionName }, 'Command injected successfully via remote method');
         
     } catch (error) {
         log.error({ error }, 'Failed to handle email message');
