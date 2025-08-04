@@ -1,0 +1,35 @@
+{
+  "name": "new-claude-code-remote",
+  "version": "1.0.0",
+  "description": "Simplified Claude Code Remote Notification System",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js",
+    "notify": "node notify.js",
+    "setup": "bash setup.sh",
+    "configure": "node configure-claude.js",
+    "configure:show": "node configure-claude.js show",
+    "start-claude": "bash start-claude.sh"
+  },
+  "keywords": [
+    "claude-code",
+    "notification",
+    "telegram",
+    "email",
+    "development-tools"
+  ],
+  "author": "Claude-Code-Remote Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^17.2.1",
+    "nodemailer": "^7.0.5",
+    "express": "^4.18.2",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.0.0"
+  }
+} 

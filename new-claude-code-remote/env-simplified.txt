@@ -1,0 +1,34 @@
+# ========================================
+# Claude Code Remote - Environment Configuration
+# ========================================
+
+# TMUX Session Configuration (REQUIRED)
+TMUX_SESSION_NAME=claude-session
+
+# ========================================
+# Email Configuration
+# ========================================
+EMAIL_ENABLED=false
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_SECURE=true
+SMTP_USER=thien.tranhungtmp@gmail.com
+SMTP_PASS=cwrowwaxgrhzwnlz
+EMAIL_FROM_NAME=Claude Code Remote LinuxMint
+EMAIL_TO=thien.tranhungtmp@gmail.com
+
+# ========================================
+# Telegram Configuration
+# ========================================
+TELEGRAM_ENABLED=true
+TELEGRAM_BOT_TOKEN=8261609828:AAEYwPpnSYStv65xARwETForNu1Bnq1ZvNA
+TELEGRAM_CHAT_ID=-4865440861
+TELEGRAM_WEBHOOK_PORT=3001
+TELEGRAM_FORCE_IPV4=true
+
+# ========================================
+# Notification Settings
+# ========================================
+NOTIFICATION_TIMEOUT=5000
+NOTIFICATION_DISPLAY_TIME=10000
+LOG_LEVEL=info 
