@@ -163,6 +163,15 @@ class TelegramNotifier {
     formatCompletionMessage(notification) {
         const { message, metadata } = notification;
         
+        // Check if message already contains the full formatted content from notify.js
+        const hasFormattedContent = message.includes('📝 Your Question:') || message.includes('⏺ Claude\'s Actions:');
+        
+        if (hasFormattedContent) {
+            // Message is already fully formatted in notify.js, just add timestamp
+            return `${message}\n\n⏰ <i>Sent at ${new Date().toLocaleString()}</i>`;
+        }
+        
+        // Fallback: original formatting for simple messages
         let formattedMessage = `✅ <b>Claude Task Completed</b>\n\n`;
         formattedMessage += `💬 <b>Message:</b> ${message}\n`;
 
@@ -175,15 +184,6 @@ class TelegramNotifier {
             }
             if (metadata.folder) {
                 formattedMessage += `📂 <b>Folder:</b> ${metadata.folder}\n`;
-            }
-            
-            // Add recent question if available
-            if (metadata.recentQuestion && metadata.recentQuestion.trim()) {
-                formattedMessage += `\n📝 <b>Your Question:</b>\n`;
-                const question = metadata.recentQuestion.length > 200 
-                    ? metadata.recentQuestion.substring(0, 197) + '...'
-                    : metadata.recentQuestion;
-                formattedMessage += `${question}\n`;
             }
         }
 
@@ -200,6 +200,15 @@ class TelegramNotifier {
     formatDecisionMessage(notification) {
         const { message, metadata } = notification;
         
+        // Check if message already contains the full formatted content from notify.js
+        const hasFormattedContent = message.includes('📝 Your Question:') || message.includes('🖥️ Current Status:');
+        
+        if (hasFormattedContent) {
+            // Message is already fully formatted in notify.js, just add header and timestamp
+            return `⏳ <b>Claude Waiting for Input</b>\n\n${message}\n\n⏰ <i>Sent at ${new Date().toLocaleString()}</i>`;
+        }
+        
+        // Fallback: original formatting for simple messages
         let formattedMessage = `⏳ <b>Claude Waiting for Input</b>\n\n`;
         formattedMessage += `💬 <b>Message:</b> ${message}\n`;
 
