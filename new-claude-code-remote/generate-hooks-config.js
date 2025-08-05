@@ -64,18 +64,6 @@ class HooksConfigGenerator {
                         ]
                     }
                 ],
-                "Decision": [
-                    {
-                        "matcher": "*",
-                        "hooks": [
-                            {
-                                "type": "command",
-                                "command": `${nodePath} ${this.notifyScriptPath} decision`,
-                                "timeout": 5
-                            }
-                        ]
-                    }
-                ],
                 "UserPromptSubmit": [
                     {
                         "matcher": "*",

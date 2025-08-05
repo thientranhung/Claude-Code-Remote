@@ -24,18 +24,6 @@
         ]
       }
     ],
-    "Decision": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/opt/homebrew/bin/node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js decision",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
     "UserPromptSubmit": [
       {
         "matcher": "*",
