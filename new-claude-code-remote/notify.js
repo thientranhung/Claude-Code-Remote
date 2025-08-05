@@ -5,7 +5,8 @@
  * This script is called by Claude Code hooks to send notifications
  */
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const Notifier = require('./src/notifier');
 const NotifyUtils = require('./notify-utils');
 const { execSync } = require('child_process');

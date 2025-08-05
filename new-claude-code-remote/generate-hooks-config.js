@@ -87,6 +87,18 @@ class HooksConfigGenerator {
                             }
                         ]
                     }
+                ],
+                "Notification": [
+                    {
+                        "matcher": "*",
+                        "hooks": [
+                            {
+                                "type": "command",
+                                "command": `${nodePath} ${this.notifyScriptPath} notification`,
+                                "timeout": 5
+                            }
+                        ]
+                    }
                 ]
             }
         };
