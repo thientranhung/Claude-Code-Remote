@@ -48,9 +48,10 @@ async function testNotification() {
         if (result) {
             console.log('✅ Test notification sent successfully!');
             console.log('📋 Now you can reply with a command in this format:');
-            console.log('   /cmd TOKEN123 <your new command>');
+            const tmuxSession = process.env.TMUX_SESSION_NAME || 'claude-session';
+            console.log(`   /cmd ${tmuxSession} <your new command>`);
             console.log('\n🎯 Example:');
-            console.log('   /cmd [TOKEN_FROM_MESSAGE] 請幫我分析這個專案的架構');
+            console.log(`   /cmd ${tmuxSession} 請幫我分析這個專案的架構`);
         } else {
             console.log('❌ Failed to send test notification');
         }

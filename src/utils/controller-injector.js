@@ -12,7 +12,7 @@ class ControllerInjector {
     constructor(config = {}) {
         this.logger = new Logger('ControllerInjector');
         this.mode = config.mode || process.env.INJECTION_MODE || 'pty';
-        this.defaultSession = config.defaultSession || process.env.TMUX_SESSION || 'claude-code';
+        this.defaultSession = config.defaultSession || process.env.TMUX_SESSION_NAME || 'claude-session';
     }
 
     async injectCommand(command, sessionName = null) {

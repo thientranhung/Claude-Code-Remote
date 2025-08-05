@@ -96,49 +96,33 @@ class TelegramWebhookHandler {
             return;
         }
 
-        // Parse command
-        const commandMatch = messageText.match(/^\/cmd\s+([A-Z0-9]{8})\s+(.+)$/i);
+        // Parse command - new format: /cmd <tmux_session_name> <command>
+        const commandMatch = messageText.match(/^\/cmd\s+([a-zA-Z0-9_-]+)\s+(.+)$/i);
         if (!commandMatch) {
             // Check if it's a direct command without /cmd prefix
-            const directMatch = messageText.match(/^([A-Z0-9]{8})\s+(.+)$/);
+            const directMatch = messageText.match(/^([a-zA-Z0-9_-]+)\s+(.+)$/i);
             if (directMatch) {
                 await this._processCommand(chatId, directMatch[1], directMatch[2]);
             } else {
                 await this._sendMessage(chatId, 
-                    '❌ Invalid format. Use:\n`/cmd <TOKEN> <command>`\n\nExample:\n`/cmd ABC12345 analyze this code`',
+                    '❌ Invalid format. Use:\n`/cmd <tmux_session_name> <command>`\n\nExample:\n`/cmd claude-session analyze this code`',
                     { parse_mode: 'Markdown' });
             }
             return;
         }
 
-        const token = commandMatch[1].toUpperCase();
+        const sessionName = commandMatch[1];
         const command = commandMatch[2];
 
-        await this._processCommand(chatId, token, command);
+        await this._processCommand(chatId, sessionName, command);
     }
 
-    async _processCommand(chatId, token, command) {
-        // Find session by token
-        const session = await this._findSessionByToken(token);
-        if (!session) {
-            await this._sendMessage(chatId, 
-                '❌ Invalid or expired token. Please wait for a new task notification.',
-                { parse_mode: 'Markdown' });
-            return;
-        }
-
-        // Check if session is expired
-        if (session.expiresAt < Math.floor(Date.now() / 1000)) {
-            await this._sendMessage(chatId, 
-                '❌ Token has expired. Please wait for a new task notification.',
-                { parse_mode: 'Markdown' });
-            await this._removeSession(session.id);
-            return;
-        }
-
+    async _processCommand(chatId, sessionName, command) {
+        // Get tmux session name from environment or use provided session name
+        const tmuxSession = process.env.TMUX_SESSION_NAME || sessionName;
+        
         try {
             // Inject command into tmux session
-            const tmuxSession = session.tmuxSession || 'default';
             await this.injector.injectCommand(command, tmuxSession);
             
             // Send confirmation
@@ -147,7 +131,7 @@ class TelegramWebhookHandler {
                 { parse_mode: 'Markdown' });
             
             // Log command execution
-            this.logger.info(`Command injected - User: ${chatId}, Token: ${token}, Command: ${command}`);
+            this.logger.info(`Command injected - User: ${chatId}, Session: ${tmuxSession}, Command: ${command}`);
             
         } catch (error) {
             this.logger.error('Command injection failed:', error.message);
@@ -165,49 +149,52 @@ class TelegramWebhookHandler {
         await this._answerCallbackQuery(callbackQuery.id);
         
         if (data.startsWith('personal:')) {
-            const token = data.split(':')[1];
+            const sessionName = data.split(':')[1];
             // Send personal chat command format
             await this._sendMessage(chatId,
-                `📝 *Personal Chat Command Format:*\n\n\`/cmd ${token} <your command>\`\n\n*Example:*\n\`/cmd ${token} please analyze this code\`\n\n💡 *Copy and paste the format above, then add your command!*`,
+                `📝 *Personal Chat Command Format:*\n\n\`/cmd ${sessionName} <your command>\`\n\n*Example:*\n\`/cmd ${sessionName} please analyze this code\`\n\n💡 *Copy and paste the format above, then add your command!*`,
                 { parse_mode: 'Markdown' });
         } else if (data.startsWith('group:')) {
-            const token = data.split(':')[1];
+            const sessionName = data.split(':')[1];
             // Send group chat command format with @bot_name
             const botUsername = await this._getBotUsername();
             await this._sendMessage(chatId,
-                `👥 *Group Chat Command Format:*\n\n\`@${botUsername} /cmd ${token} <your command>\`\n\n*Example:*\n\`@${botUsername} /cmd ${token} please analyze this code\`\n\n💡 *Copy and paste the format above, then add your command!*`,
+                `👥 *Group Chat Command Format:*\n\n\`@${botUsername} /cmd ${sessionName} <your command>\`\n\n*Example:*\n\`@${botUsername} /cmd ${sessionName} please analyze this code\`\n\n💡 *Copy and paste the format above, then add your command!*`,
                 { parse_mode: 'Markdown' });
         } else if (data.startsWith('session:')) {
-            const token = data.split(':')[1];
+            const sessionName = data.split(':')[1];
             // For backward compatibility - send help message for old callback buttons
             await this._sendMessage(chatId,
-                `📝 *How to send a command:*\n\nType:\n\`/cmd ${token} <your command>\`\n\nExample:\n\`/cmd ${token} please analyze this code\`\n\n💡 *Tip:* New notifications have a button that auto-fills the command for you!`,
+                `📝 *How to send a command:*\n\nType:\n\`/cmd ${sessionName} <your command>\`\n\nExample:\n\`/cmd ${sessionName} please analyze this code\`\n\n💡 *Tip:* New notifications have a button that auto-fills the command for you!`,
                 { parse_mode: 'Markdown' });
         }
     }
 
     async _sendWelcomeMessage(chatId) {
+        const tmuxSession = process.env.TMUX_SESSION_NAME || 'claude-session';
         const message = `🤖 *Welcome to Claude Code Remote Bot!*\n\n` +
             `I'll notify you when Claude completes tasks or needs input.\n\n` +
-            `When you receive a notification with a token, you can send commands back using:\n` +
-            `\`/cmd <TOKEN> <your command>\`\n\n` +
+            `You can send commands to Claude using:\n` +
+            `\`/cmd <tmux_session_name> <your command>\`\n\n` +
+            `Default session: \`${tmuxSession}\`\n\n` +
             `Type /help for more information.`;
         
         await this._sendMessage(chatId, message, { parse_mode: 'Markdown' });
     }
 
     async _sendHelpMessage(chatId) {
+        const tmuxSession = process.env.TMUX_SESSION_NAME || 'claude-session';
         const message = `📚 *Claude Code Remote Bot Help*\n\n` +
             `*Commands:*\n` +
             `• \`/start\` - Welcome message\n` +
             `• \`/help\` - Show this help\n` +
-            `• \`/cmd <TOKEN> <command>\` - Send command to Claude\n\n` +
+            `• \`/cmd <tmux_session_name> <command>\` - Send command to Claude\n\n` +
             `*Example:*\n` +
-            `\`/cmd ABC12345 analyze the performance of this function\`\n\n` +
+            `\`/cmd ${tmuxSession} analyze the performance of this function\`\n\n` +
             `*Tips:*\n` +
-            `• Tokens are case-insensitive\n` +
-            `• Tokens expire after 24 hours\n` +
-            `• You can also just type \`TOKEN command\` without /cmd`;
+            `• Session names are case-sensitive\n` +
+            `• Default session: \`${tmuxSession}\`\n` +
+            `• You can also just type \`session_name command\` without /cmd`;
         
         await this._sendMessage(chatId, message, { parse_mode: 'Markdown' });
     }

@@ -12,7 +12,9 @@
     "relay:start": "INJECTION_MODE=pty node src/relay/relay-pty.js",
     "telegram": "node start-telegram-webhook.js",
     "line": "node start-line-webhook.js",
-    "webhooks": "node start-all-webhooks.js"
+    "webhooks": "node start-all-webhooks.js",
+    "test:session": "node test-new-session-system.js",
+    "migrate": "node migrate-to-session-names.js"
   },
   "keywords": [
     "claude-code",

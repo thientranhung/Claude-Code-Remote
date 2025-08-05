@@ -319,13 +319,17 @@ class EmailChannel extends NotificationChannel {
 ==================================`;
         }
         
+        // Get tmux session name
+        const tmuxSession = process.env.TMUX_SESSION_NAME || notification.metadata?.tmuxSession || 'claude-session';
+        
         // Template variable replacement
         const variables = {
             project: projectDir,
             message: notification.message,
             timestamp: timestamp,
             sessionId: sessionId,
-            token: token,
+            token: token, // Keep for backward compatibility
+            tmuxSession: tmuxSession,
             type: notification.type === 'completed' ? 'Task completed' : 'Waiting for input',
             userQuestion: userQuestion || 'No specified task',
             claudeResponse: claudeResponse || notification.message,
@@ -366,7 +370,7 @@ class EmailChannel extends NotificationChannel {
         // Default templates
         const templates = {
             completed: {
-                subject: '[Claude-Code-Remote #{{token}}] Claude Code Task Completed - {{project}}',
+                subject: '[Claude-Code-Remote Session: {{tmuxSession}}] Claude Code Task Completed - {{project}}',
                 html: `
                 <div style="font-family: 'Consolas', 'Monaco', 'Courier New', monospace; background-color: #f5f5f5; padding: 0; margin: 0;">
                     <div style="max-width: 900px; margin: 0 auto; background-color: #1e1e1e; border: 1px solid #333; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);">
@@ -434,7 +438,7 @@ class EmailChannel extends NotificationChannel {
                 </div>
                 `,
                 text: `
-[Claude-Code-Remote #{{token}}] Claude Code Task Completed - {{projectDir}} | {{shortQuestion}}
+[Claude-Code-Remote Session: {{tmuxSession}}] Claude Code Task Completed - {{projectDir}} | {{shortQuestion}}
 
 Project: {{projectDir}}
 Time: {{timestamp}}
@@ -528,7 +532,7 @@ Security Note: Please do not forward this email, session will automatically expi
                 </div>
                 `,
                 text: `
-[Claude-Code-Remote #{{token}}] Claude Code Waiting for Input - {{projectDir}}
+[Claude-Code-Remote Session: {{tmuxSession}}] Claude Code Waiting for Input - {{projectDir}}
 
 Project: {{projectDir}}
 Time: {{timestamp}}

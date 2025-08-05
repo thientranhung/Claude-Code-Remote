@@ -93,36 +93,21 @@ class LINEWebhookHandler {
             return;
         }
 
-        // Parse command
-        const commandMatch = messageText.match(/^Token\s+([A-Z0-9]{8})\s+(.+)$/i);
+        // Parse command - new format: <tmux_session_name> <command>
+        const commandMatch = messageText.match(/^([a-zA-Z0-9_-]+)\s+(.+)$/i);
         if (!commandMatch) {
+            const tmuxSession = process.env.TMUX_SESSION_NAME || 'claude-session';
             await this._replyMessage(replyToken, 
-                '❌ 格式錯誤。請使用:\nToken <8位Token> <您的指令>\n\n例如:\nToken ABC12345 請幫我分析這段程式碼');
+                `❌ 格式錯誤。請使用:\n<tmux_session_name> <您的指令>\n\n例如:\n${tmuxSession} 請幫我分析這段程式碼`);
             return;
         }
 
-        const token = commandMatch[1].toUpperCase();
+        const sessionName = commandMatch[1];
         const command = commandMatch[2];
-
-        // Find session by token
-        const session = await this._findSessionByToken(token);
-        if (!session) {
-            await this._replyMessage(replyToken, 
-                '❌ Token 無效或已過期。請等待新的任務通知。');
-            return;
-        }
-
-        // Check if session is expired
-        if (session.expiresAt < Math.floor(Date.now() / 1000)) {
-            await this._replyMessage(replyToken, 
-                '❌ Token 已過期。請等待新的任務通知。');
-            await this._removeSession(session.id);
-            return;
-        }
 
         try {
             // Inject command into tmux session
-            const tmuxSession = session.tmuxSession || 'default';
+            const tmuxSession = process.env.TMUX_SESSION_NAME || sessionName;
             await this.injector.injectCommand(command, tmuxSession);
             
             // Send confirmation
@@ -130,7 +115,7 @@ class LINEWebhookHandler {
                 `✅ 指令已發送\n\n📝 指令: ${command}\n🖥️ 會話: ${tmuxSession}\n\n請稍候，Claude 正在處理您的請求...`);
             
             // Log command execution
-            this.logger.info(`Command injected - User: ${userId}, Token: ${token}, Command: ${command}`);
+            this.logger.info(`Command injected - User: ${userId}, Session: ${tmuxSession}, Command: ${command}`);
             
         } catch (error) {
             this.logger.error('Command injection failed:', error.message);

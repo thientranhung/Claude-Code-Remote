@@ -107,6 +107,10 @@ nano .env
 
 **Required email settings:**
 ```env
+# TMUX Session Configuration (REQUIRED)
+TMUX_SESSION_NAME=claude-session
+
+# Email Configuration
 EMAIL_ENABLED=true
 SMTP_USER=your-email@gmail.com
 SMTP_PASS=your-app-password
@@ -134,11 +138,14 @@ chmod +x setup-telegram.sh
 
 **Required Telegram settings:**
 ```env
+# TMUX Session Configuration (REQUIRED)
+TMUX_SESSION_NAME=claude-session
+
+# Telegram Configuration
 TELEGRAM_ENABLED=true
 TELEGRAM_BOT_TOKEN=your-bot-token-here
 TELEGRAM_CHAT_ID=your-chat-id-here
 TELEGRAM_WEBHOOK_URL=https://your-ngrok-url.app
-SESSION_MAP_PATH=/your/path/to/Claude-Code-Remote/src/data/session-map.json
 ```
 
 **Optional Telegram settings:**
@@ -161,6 +168,10 @@ TELEGRAM_FORCE_IPV4=true
 
 **Required LINE settings:**
 ```env
+# TMUX Session Configuration (REQUIRED)
+TMUX_SESSION_NAME=claude-session
+
+# LINE Configuration
 LINE_ENABLED=true
 LINE_CHANNEL_ACCESS_TOKEN=your-token
 LINE_CHANNEL_SECRET=your-secret
@@ -293,14 +304,14 @@ No special formatting required
 **Telegram:** ✅ **NEW**
 ```
 Click smart button to get format:
-📝 Personal Chat: /cmd TOKEN123 your command here
-👥 Group Chat: @bot_name /cmd TOKEN123 your command here
+📝 Personal Chat: /cmd claude-session your command here
+👥 Group Chat: @bot_name /cmd claude-session your command here
 ```
 
 **LINE:**
 ```
-Reply to notification with: Your command here
-(Token automatically extracted from conversation context)
+Reply to notification with: claude-session your command here
+(Session name automatically extracted from conversation context)
 ```
 
 ### Advanced Configuration
@@ -441,13 +452,13 @@ DEBUG=true node claude-hook-notify.js completed
 - ✅ **Email**: Sender whitelist via `ALLOWED_SENDERS` environment variable
 - ✅ **Telegram**: Bot token and chat ID verification
 - ✅ **LINE**: Channel secret and access token validation
-- ✅ **Session Tokens**: 8-character alphanumeric tokens for command verification
+- ✅ **Session Names**: Direct tmux session name for command injection
 
 ### Session Security
-- ✅ **Session Isolation**: Each token controls only its specific tmux session
-- ✅ **Auto Expiration**: Sessions timeout automatically after 24 hours
-- ✅ **Token-based Commands**: All platforms require valid session tokens
-- ✅ **Minimal Data Storage**: Session files contain only necessary information
+- ✅ **Session Isolation**: Each tmux session is controlled directly by name
+- ✅ **Direct Access**: No token expiration or complex session management
+- ✅ **Session-based Commands**: All platforms use tmux session names directly
+- ✅ **Simplified Architecture**: Reduced complexity and potential failure points
 
 ## 🤝 Contributing
 
