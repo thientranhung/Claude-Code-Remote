@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  },
   "hooks": {
     "Stop": [
       {
@@ -6,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/opt/homebrew/bin/node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js completed",
+            "command": "node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js completed",
             "timeout": 5
           }
         ]
@@ -18,7 +24,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/opt/homebrew/bin/node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js completed",
+            "command": "node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js completed",
             "timeout": 5
           }
         ]
@@ -30,7 +36,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/opt/homebrew/bin/node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js decision",
+            "command": "node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js decision",
             "timeout": 5
           }
         ]
@@ -42,7 +48,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/opt/homebrew/bin/node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js userprompt",
+            "command": "node /Users/tranthien/Documents/1.DEV/12.Github/Claude-Code-Remote/new-claude-code-remote/notify.js userprompt",
             "timeout": 5
           }
         ]

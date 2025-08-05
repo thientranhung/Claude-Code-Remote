@@ -10,6 +10,8 @@
     "setup": "bash setup.sh",
     "configure": "node configure-claude.js",
     "configure:show": "node configure-claude.js show",
+    "generate-hooks": "node generate-hooks-config.js",
+    "generate-hooks:help": "node generate-hooks-config.js --help",
     "start-claude": "bash start-claude.sh"
   },
   "keywords": [

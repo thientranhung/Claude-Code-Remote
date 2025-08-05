@@ -62,7 +62,24 @@ class Notifier {
             }
         };
 
-        return await this.sendNotification(notification);
+        const results = [];
+
+        // Send email notification
+        if (this.emailNotifier.initialized) {
+            const emailResult = await this.emailNotifier.sendNotification(notification);
+            results.push({ channel: 'email', success: emailResult });
+        }
+
+        // Send telegram completion notification
+        if (this.telegramNotifier.initialized) {
+            const telegramResult = await this.telegramNotifier.sendCompletionNotification(notification);
+            results.push({ channel: 'telegram', success: telegramResult });
+        }
+
+        const successCount = results.filter(r => r.success).length;
+        this.logger.info(`Completion notification sent to ${successCount}/${results.length} channels`);
+
+        return successCount > 0;
     }
 
     async sendDecisionNotification(message, metadata = {}) {
@@ -75,7 +92,24 @@ class Notifier {
             }
         };
 
-        return await this.sendNotification(notification);
+        const results = [];
+
+        // Send email notification
+        if (this.emailNotifier.initialized) {
+            const emailResult = await this.emailNotifier.sendNotification(notification);
+            results.push({ channel: 'email', success: emailResult });
+        }
+
+        // Send telegram decision notification
+        if (this.telegramNotifier.initialized) {
+            const telegramResult = await this.telegramNotifier.sendDecisionNotification(notification);
+            results.push({ channel: 'telegram', success: telegramResult });
+        }
+
+        const successCount = results.filter(r => r.success).length;
+        this.logger.info(`Decision notification sent to ${successCount}/${results.length} channels`);
+
+        return successCount > 0;
     }
 
     getMetadata() {

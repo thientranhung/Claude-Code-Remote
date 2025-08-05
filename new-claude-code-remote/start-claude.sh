@@ -12,9 +12,9 @@ if ! command -v tmux &> /dev/null; then
     exit 1
 fi
 
-# Check if claude-code is installed
-if ! command -v claude-code &> /dev/null; then
-    echo "❌ claude-code is not installed. Please install Claude Code first."
+# Check if claude is installed
+if ! command -v claude &> /dev/null; then
+    echo "❌ claude is not installed. Please install Claude Code first."
     exit 1
 fi
 
@@ -39,7 +39,7 @@ tmux new-session -d -s $TMUX_SESSION
 
 # Send command to start Claude Code
 echo "🤖 Starting Claude Code..."
-tmux send-keys -t $TMUX_SESSION "claude-code" Enter
+tmux send-keys -t $TMUX_SESSION "claude" Enter
 
 # Attach to session
 echo "🔗 Attaching to session..."

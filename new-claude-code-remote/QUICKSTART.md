@@ -79,6 +79,10 @@ npm run configure:show
 - Kiểm tra chat ID
 - Đảm bảo bot đã start
 
+### Claude Code không khởi động được
+- Đảm bảo đã cài đặt Claude Code mới nhất
+- Sử dụng lệnh `claude` thay vì `claude-code`
+
 ### Claude Code hooks không hoạt động
 - Chạy `npm run configure` để cấu hình
 - Đảm bảo Claude Code chạy trong tmux

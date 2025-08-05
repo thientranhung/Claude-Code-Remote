@@ -136,7 +136,7 @@ tmux new-session -d -s claude-session
 tmux attach-session -t claude-session
 
 # Trong tmux session, khởi động Claude Code
-claude-code
+claude
 ```
 
 ## Sử dụng
