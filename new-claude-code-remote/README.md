@@ -119,11 +119,11 @@ Setup sẽ tạo file `claude-hooks.json`. Copy nội dung vào `your-project/.c
         "timeout": 5
       }]
     }],
-    "Decision": [{
-      "matcher": "*", 
+    "Notification": [{
+      "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "node /full/path/to/cc_notifications/notify.js decision",
+        "command": "node /full/path/to/cc_notifications/notify.js notify",
         "timeout": 5
       }]
     }],

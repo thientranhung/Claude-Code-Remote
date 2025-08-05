@@ -94,7 +94,7 @@ class HooksConfigGenerator {
                         "hooks": [
                             {
                                 "type": "command",
-                                "command": `${nodePath} ${this.notifyScriptPath} notification`,
+                                "command": `${nodePath} ${this.notifyScriptPath} notify`,
                                 "timeout": 5
                             }
                         ]

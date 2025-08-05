@@ -180,9 +180,12 @@ class NotificationScript {
                 case 'notify':
                     await this.handleNotify(message, metadata);
                     break;
+                case 'notification':
+                    await this.handleNotify(message, metadata);
+                    break;
                 default:
                     console.error(`Unknown command: ${command}`);
-                    console.log('Available commands: completed, decision, pretool, custom');
+                    console.log('Available commands: completed, decision, pretool, custom, notification');
                     process.exit(1);
             }
         } catch (error) {
