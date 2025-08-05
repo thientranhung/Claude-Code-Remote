@@ -7,12 +7,9 @@
     "start": "node index.js",
     "test": "node test.js",
     "notify": "node notify.js",
-    "setup": "bash setup.sh",
-    "configure": "node configure-claude.js",
-    "configure:show": "node configure-claude.js show",
+    "setup": "./setup.sh",
     "generate-hooks": "node generate-hooks-config.js",
-    "generate-hooks:help": "node generate-hooks-config.js --help",
-    "start-claude": "bash start-claude.sh"
+    "generate-hooks:help": "node generate-hooks-config.js --help"
   },
   "keywords": [
     "claude-code",

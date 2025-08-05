@@ -1,91 +1,104 @@
-# New Claude Code Remote
+# Claude Code Remote Notification System
 
-Hệ thống thông báo đơn giản cho Claude Code với hỗ trợ Email và Telegram.
+Nhận thông báo Email/Telegram khi Claude Code hoàn thành task hoặc cần sự trợ giúp của bạn.
 
-## Tính năng
+## 🎯 Dùng để làm gì?
 
-- ✅ Thông báo khi hoàn thành task
-- ✅ Thông báo khi cần quyết định
-- ✅ Hỗ trợ Email (SMTP)
-- ✅ Hỗ trợ Telegram Bot
-- ✅ Thông tin chi tiết: tên project, tmux session, folder
-- ✅ Đơn giản và dễ cấu hình
+- ✅ Nhận thông báo khi Claude Code hoàn thành task
+- ❓ Nhận alert khi Claude cần bạn quyết định
+- 📱 Gửi qua Telegram hoặc Email
+- 💬 Xem lại câu hỏi bạn đã hỏi và tóm tắt kết quả
 
-## Cài đặt
+## 📦 Cài đặt
 
-### 1. Clone và cài đặt dependencies
+### Bước 1: Clone và đổi tên
 
 ```bash
-cd new-claude-code-remote
-npm install
+# Clone repository
+git clone https://github.com/yourusername/claude-code-remote.git
+
+# Đổi tên thành cc_notifications (khuyến nghị)
+mv claude-code-remote/new-claude-code-remote cc_notifications
 ```
 
-### 2. Cấu hình môi trường
+### Bước 2: Đặt đúng vị trí
+
+Di chuyển `cc_notifications` **cùng cấp** với project của bạn:
+
+```
+your-workspace/
+├── your-project/           # Project của bạn
+│   └── .claude/           # Sẽ được tạo bởi setup
+│       └── settings.local.json
+└── cc_notifications/       # Folder notification
+    ├── notify.js
+    ├── setup.sh
+    └── .env
+```
+
+### Bước 3: Cấu hình Email/Telegram
 
 ```bash
-# Copy file cấu hình mẫu
+cd cc_notifications
+
+# Copy file mẫu
 cp env.example .env
 
-# Chỉnh sửa file .env
+# Mở và chỉnh sửa
 nano .env
 ```
 
-### 3. Cấu hình Email (Tùy chọn)
+**Cho Email (Gmail):**
+- `EMAIL_ENABLED=true`
+- `SMTP_USER=your-email@gmail.com`
+- `SMTP_PASS=your-app-password` ([Tạo App Password](https://myaccount.google.com/security))
+- `EMAIL_TO=notification-email@gmail.com`
 
-Thêm vào file `.env`:
+**Cho Telegram:**
+- `TELEGRAM_ENABLED=true`  
+- `TELEGRAM_BOT_TOKEN=123456:ABC-DEF...` (từ [@BotFather](https://t.me/BotFather))
+- `TELEGRAM_CHAT_ID=-1234567890`
 
-```env
-EMAIL_ENABLED=true
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-email@gmail.com
-SMTP_PASS=your-app-password
-EMAIL_FROM_NAME=Claude Code Remote
-EMAIL_TO=your-notification-email@gmail.com
-```
+### Bước 4: Chạy setup
 
-**Lưu ý cho Gmail:** Sử dụng [App Passwords](https://myaccount.google.com/security), không phải mật khẩu thường.
-
-### 4. Cấu hình Telegram (Tùy chọn)
-
-#### Tạo Telegram Bot:
-1. Chat với [@BotFather](https://t.me/BotFather)
-2. Tạo bot mới: `/newbot`
-3. Lấy bot token
-
-#### Lấy Chat ID:
-1. Chat với bot của bạn
-2. Truy cập: `https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getUpdates`
-3. Tìm `chat.id` trong response
-
-#### Cấu hình trong `.env`:
-
-```env
-TELEGRAM_ENABLED=true
-TELEGRAM_BOT_TOKEN=your-bot-token-here
-TELEGRAM_CHAT_ID=your-chat-id-here
-TELEGRAM_WEBHOOK_PORT=3001
-TELEGRAM_FORCE_IPV4=false
-```
-
-### 5. Cấu hình TMUX Session
-
-```env
-TMUX_SESSION_NAME=claude-session
-```
-
-## Cấu hình Claude Code
-
-### 1. Tạo file cấu hình Claude Code
-
-#### Cách 1: Sử dụng script tự động (Khuyến nghị)
 ```bash
-npm run configure
+./setup.sh
 ```
 
-#### Cách 2: Thủ công
-Tạo file `~/.claude/settings.json`:
+Setup sẽ:
+- Kiểm tra Node.js, tmux, Claude Code
+- Tự động tạo file config hooks
+- Tạo tmux session theo tên project
+- Kiểm tra và cảnh báo nếu đã có hooks
+
+### Bước 5: Test thử
+
+```bash
+npm test
+```
+
+### Bước 6: Dùng với Claude Code
+
+```bash
+# Mở tmux session (tên tự động theo project)
+tmux attach -t your-project-claude
+
+# Chạy Claude Code
+claude
+```
+
+## 🔧 Cấu hình Telegram Bot
+
+1. Chat với [@BotFather](https://t.me/BotFather) trên Telegram
+2. Gửi `/newbot` và làm theo hướng dẫn
+3. Copy bot token
+4. Chat với bot của bạn (bất kỳ tin nhắn nào)
+5. Mở link: `https://api.telegram.org/bot<YOUR_TOKEN>/getUpdates`
+6. Tìm `"chat":{"id":123456}` - đó là chat ID của bạn
+
+## ⚙️ Cấu trúc file hooks
+
+Setup sẽ tạo file `claude-hooks.json`. Copy nội dung vào `your-project/.claude/settings.local.json`:
 
 ```json
 {
@@ -94,7 +107,7 @@ Tạo file `~/.claude/settings.json`:
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "node /path/to/new-claude-code-remote/notify.js completed",
+        "command": "node /full/path/to/cc_notifications/notify.js completed",
         "timeout": 5
       }]
     }],
@@ -102,15 +115,23 @@ Tạo file `~/.claude/settings.json`:
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "node /path/to/new-claude-code-remote/notify.js completed",
+        "command": "node /full/path/to/cc_notifications/notify.js completed",
         "timeout": 5
       }]
     }],
     "Decision": [{
+      "matcher": "*", 
+      "hooks": [{
+        "type": "command",
+        "command": "node /full/path/to/cc_notifications/notify.js decision",
+        "timeout": 5
+      }]
+    }],
+    "UserPromptSubmit": [{
       "matcher": "*",
       "hooks": [{
         "type": "command",
-        "command": "node /path/to/new-claude-code-remote/notify.js decision",
+        "command": "node /full/path/to/cc_notifications/notify.js prompt",
         "timeout": 5
       }]
     }]
@@ -118,77 +139,55 @@ Tạo file `~/.claude/settings.json`:
 }
 ```
 
-**Thay thế `/path/to/new-claude-code-remote/` bằng đường dẫn thực tế đến thư mục dự án.**
+**Lưu ý:** 
+- Setup tự động điền đúng path cho bạn
+- Nếu đã có hooks khác, merge thủ công để không mất
 
-### 2. Khởi động Claude Code trong TMUX
+## 📱 Kết quả
 
-#### Cách 1: Sử dụng script tự động (Khuyến nghị)
-```bash
-npm run start-claude
+Khi Claude Code hoàn thành task, bạn sẽ nhận được:
+
+**Telegram:**
+```
+✅ Claude Task Completed
+
+📝 Your Question:
+Giúp tôi fix bug login không được
+
+⏺ Claude's Actions:
+Fixed authentication issue | Updated login validation | Added error handling
 ```
 
-#### Cách 2: Thủ công
-```bash
-# Tạo tmux session
-tmux new-session -d -s claude-session
+## ❓ Câu hỏi thường gặp
 
-# Attach vào session
-tmux attach-session -t claude-session
+**Q: Có cần cài global không?**  
+A: Không. Mỗi project nên có notification riêng.
 
-# Trong tmux session, khởi động Claude Code
-claude
-```
+**Q: Email không gửi được?**  
+A: Dùng [App Password](https://myaccount.google.com/security) cho Gmail, không dùng mật khẩu thường.
 
-## Sử dụng
+**Q: Telegram không nhận được?**  
+A: Kiểm tra đã chat với bot chưa, và chat ID có đúng không.
 
-### Test hệ thống
+**Q: Có bao nhiêu project thì copy bao nhiêu lần?**  
+A: Đúng vậy. Mỗi project = 1 notification system riêng.
 
-```bash
-npm test
-```
-
-### Gửi thông báo thủ công
+## 🚀 Commands hữu ích
 
 ```bash
-# Thông báo hoàn thành
-node notify.js completed "Task completed successfully"
-
-# Thông báo cần quyết định
-node notify.js decision "Need your input for next step"
-
-# Thông báo tùy chỉnh
-node notify.js custom "Custom message here"
+npm test                    # Test gửi thông báo
+npm run generate-hooks      # Tạo lại file config
+tmux ls                     # Xem các tmux sessions
+tmux kill-session -t name   # Xóa tmux session
 ```
 
-## Cấu trúc thông báo
+## 📝 Lưu ý
 
-### Email
-- Tiêu đề: "Claude Code Notification - [Type]"
-- Nội dung HTML với thông tin chi tiết
-- Bao gồm: Project name, TMUX session, Folder path
+- Thêm folder notification vào `.gitignore` của project
+- File `.env` chứa thông tin nhạy cảm - không commit
+- Mỗi project dùng tmux session riêng
+- Claude Code phải chạy trong tmux để capture được context
 
-### Telegram
-- Format HTML với emoji
-- Thông tin chi tiết: Project, TMUX session, Folder
-- Timestamp
+---
 
-## Troubleshooting
-
-### Email không gửi được
-- Kiểm tra SMTP credentials
-- Đảm bảo sử dụng App Password cho Gmail
-- Kiểm tra firewall/antivirus
-
-### Telegram không gửi được
-- Kiểm tra bot token và chat ID
-- Đảm bảo bot đã được start
-- Kiểm tra kết nối internet
-
-### Claude Code hooks không hoạt động
-- Kiểm tra đường dẫn trong settings.json
-- Đảm bảo Claude Code chạy trong tmux session
-- Kiểm tra quyền thực thi của notify.js
-
-## License
-
-MIT License 
+Cần giúp? Xem [CLAUDE.md](./CLAUDE.md) cho technical details.

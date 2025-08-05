@@ -82,7 +82,7 @@ class HooksConfigGenerator {
                         "hooks": [
                             {
                                 "type": "command",
-                                "command": `${nodePath} ${this.notifyScriptPath} userprompt`,
+                                "command": `${nodePath} ${this.notifyScriptPath} prompt`,
                                 "timeout": 5
                             }
                         ]
@@ -134,8 +134,8 @@ class HooksConfigGenerator {
             console.log(`   Notify script: ${this.notifyScriptPath}`);
             console.log(`   Output file: ${fullPath}`);
             console.log(`\n🎯 Next steps:`);
-            console.log(`   1. Copy this file to ~/.claude/settings.json`);
-            console.log(`   2. Or run: npm run configure`);
+            console.log(`   1. Copy this file to your-project/.claude/settings.local.json`);
+            console.log(`   2. Or let setup.sh handle it automatically`);
         } catch (error) {
             console.error(`❌ Failed to write config: ${error.message}`);
             process.exit(1);
